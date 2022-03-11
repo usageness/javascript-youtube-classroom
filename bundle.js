@@ -153,6 +153,7 @@ var YoutubeApp = /*#__PURE__*/function () {
       } catch (_ref3) {
         var message = _ref3.message;
         (0,_utils_dom__WEBPACK_IMPORTED_MODULE_11__.alertMessage)(message);
+        return;
       }
 
       (0,_utils_dom__WEBPACK_IMPORTED_MODULE_11__.scrollToTop)(_this.videoList);
