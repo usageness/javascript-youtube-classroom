@@ -47,9 +47,6 @@ var VideoStorage = /*#__PURE__*/function () {
   }, {
     key: "checkTypeVideoEmpty",
     value: function checkTypeVideoEmpty(isWatchedVideoOnly) {
-      console.log(!this.getStorage().some(function (item) {
-        return item.isWatched === isWatchedVideoOnly;
-      }));
       return !this.getStorage().some(function (item) {
         return item.isWatched === isWatchedVideoOnly;
       });
@@ -182,8 +179,6 @@ var YoutubeApp = /*#__PURE__*/function () {
     _classPrivateFieldInitSpec(this, _reloadStorageData, {
       writable: true,
       value: function value() {
-        console.log(_this.videoStorage.getStorage());
-
         if (_this.videoStorage.checkTypeVideoEmpty(_this.isWatchedVideoOnly)) {
           _this.videoStorageView.renderEmptyStorage();
 
@@ -368,30 +363,48 @@ var YoutubeApp = /*#__PURE__*/function () {
                 this.searchModalView.clearVideoList();
                 this.searchModalView.renderSkeleton();
                 this.keyword = keyword;
-                _context2.next = 5;
+                _context2.prev = 3;
+                _context2.next = 6;
                 return (0,_api_getSearchResult__WEBPACK_IMPORTED_MODULE_8__["default"])(this.keyword);
 
-              case 5:
+              case 6:
                 responseData = _context2.sent;
+
+                if (!(responseData === null)) {
+                  _context2.next = 10;
+                  break;
+                }
+
+                this.searchModalView.unrenderSkeleton();
+                return _context2.abrupt("return");
+
+              case 10:
                 this.nextPageToken = responseData.nextPageToken;
 
                 if (!(responseData.items.length === 0)) {
-                  _context2.next = 10;
+                  _context2.next = 14;
                   break;
                 }
 
                 this.searchModalView.renderNoResultPage();
                 return _context2.abrupt("return");
 
-              case 10:
+              case 14:
                 this.searchModalView.renderSearchResult(responseData, this.videoStorage.getVideoIdArray());
+                _context2.next = 20;
+                break;
 
-              case 11:
+              case 17:
+                _context2.prev = 17;
+                _context2.t0 = _context2["catch"](3);
+                this.searchModalView.unrenderSkeleton();
+
+              case 20:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, this);
+        }, _callee2, this, [[3, 17]]);
       }));
 
       function search(_x) {
@@ -410,20 +423,38 @@ var YoutubeApp = /*#__PURE__*/function () {
             switch (_context3.prev = _context3.next) {
               case 0:
                 this.searchModalView.renderSkeleton();
-                _context3.next = 3;
+                _context3.prev = 1;
+                _context3.next = 4;
                 return (0,_api_getSearchResult__WEBPACK_IMPORTED_MODULE_8__["default"])(this.keyword, this.nextPageToken);
 
-              case 3:
+              case 4:
                 responseData = _context3.sent;
+
+                if (!(responseData === null)) {
+                  _context3.next = 8;
+                  break;
+                }
+
+                this.searchModalView.unrenderSkeleton();
+                return _context3.abrupt("return");
+
+              case 8:
                 this.nextPageToken = responseData.nextPageToken;
                 this.searchModalView.renderSearchResult(responseData, this.videoStorage.getVideoIdArray());
+                _context3.next = 15;
+                break;
 
-              case 6:
+              case 12:
+                _context3.prev = 12;
+                _context3.t0 = _context3["catch"](1);
+                this.searchModalView.unrenderSkeleton();
+
+              case 15:
               case "end":
                 return _context3.stop();
             }
           }
-        }, _callee3, this);
+        }, _callee3, this, [[1, 12]]);
       }));
 
       function searchNextPage() {
@@ -469,10 +500,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../constants/constants */ "./src/js/constants/constants.js");
 /* harmony import */ var _mockObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../mockObject */ "./src/js/mockObject.js");
+/* harmony import */ var _utils_handleError__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/handleError */ "./src/js/utils/handleError.js");
 
 
 
 
+
+var isProgressing = false;
 function getSearchResult(_x) {
   return _getSearchResult.apply(this, arguments);
 }
@@ -492,8 +526,16 @@ function _getSearchResult() {
           case 0:
             nextPageToken = _args.length > 1 && _args[1] !== undefined ? _args[1] : "";
 
-            if (!_constants_constants__WEBPACK_IMPORTED_MODULE_2__.DEVELOP_MODE) {
+            if (!isProgressing) {
               _context.next = 3;
+              break;
+            }
+
+            return _context.abrupt("return", null);
+
+          case 3:
+            if (!_constants_constants__WEBPACK_IMPORTED_MODULE_2__.DEVELOP_MODE) {
+              _context.next = 5;
               break;
             }
 
@@ -502,7 +544,8 @@ function _getSearchResult() {
               nextPageToken: "ABCDEF"
             });
 
-          case 3:
+          case 5:
+            isProgressing = true;
             REDIRECT_SERVER_HOST = "https://unruffled-turing-aacdf7.netlify.app";
             url = new URL("youtube/v3/search", REDIRECT_SERVER_HOST);
             parameters = new URLSearchParams({
@@ -515,41 +558,44 @@ function _getSearchResult() {
               q: searchKeyword
             });
             url.search = parameters.toString();
-            _context.prev = 7;
-            _context.next = 10;
+            _context.prev = 10;
+            _context.next = 13;
             return fetch(url, {
               method: "GET"
             });
 
-          case 10:
+          case 13:
             response = _context.sent;
-            _context.next = 13;
+            _context.next = 16;
             return response.json();
 
-          case 13:
+          case 16:
             data = _context.sent;
 
             if (response.ok) {
-              _context.next = 16;
+              _context.next = 19;
               break;
             }
 
             throw new Error(data.error.message);
 
-          case 16:
+          case 19:
+            isProgressing = false;
             return _context.abrupt("return", data);
 
-          case 19:
-            _context.prev = 19;
-            _context.t0 = _context["catch"](7);
+          case 23:
+            _context.prev = 23;
+            _context.t0 = _context["catch"](10);
+            (0,_utils_handleError__WEBPACK_IMPORTED_MODULE_4__["default"])(_context.t0.message);
+            isProgressing = false;
             return _context.abrupt("return", null);
 
-          case 22:
+          case 28:
           case "end":
             return _context.stop();
         }
       }
-    }, _callee, null, [[7, 19]]);
+    }, _callee, null, [[10, 23]]);
   }));
   return _getSearchResult.apply(this, arguments);
 }
@@ -580,7 +626,7 @@ var DELAY_TIME = 300;
 var ITEMS_PER_REQUEST = 10;
 var ALLOCATE_FOR_RENDER_PX = 40;
 var STORAGE_MAX_COUNT = 100;
-var DEVELOP_MODE = true;
+var DEVELOP_MODE = false;
 
 /***/ }),
 
@@ -647,7 +693,7 @@ var generateTemplate = {
         thumbnail = _ref.thumbnail,
         title = _ref.title,
         date = _ref.date;
-    return "<li class=\"video-item\" data-video-id=\"".concat(id, "\">\n    <img\n    src=\"").concat(thumbnail, "\"\n    alt=\"video-item-thumbnail\"\n    class=\"video-item__thumbnail\"\n    />\n    <h4 class=\"video-item__title\">\n      ").concat(title, "\n    </h4>\n    <p class=\"video-item__channel-name \">").concat(channel, "</p>\n    <p class=\"video-item__published-date \">").concat(date, "</p>\n    <button class=\"video-item__save-button button ").concat(videoIdArray.includes(String(id)) ? "hide" : "", " \">\n      \u2B07 \uC800\uC7A5\n    </button>\n  </li>");
+    return "<li class=\"video-item\" data-video-id=\"".concat(id, "\">\n    <a href=\"https://www.youtube.com/watch?v=").concat(id, "\" target=\"_blank\">\n      <img\n      src=\"").concat(thumbnail, "\"\n      alt=\"video-item-thumbnail\"\n      class=\"video-item__thumbnail\"\n      />\n      <h4 class=\"video-item__title\">\n        ").concat(title, "\n      </h4>\n      <p class=\"video-item__channel-name \">").concat(channel, "</p>\n      <p class=\"video-item__published-date \">").concat(date, "</p>\n    </a>\n    <button class=\"video-item__save-button button ").concat(videoIdArray.includes(String(id)) ? "hide" : "", " \">\n      \u2B07 \uC800\uC7A5\n    </button>\n  </li>");
   },
   videoItems: function videoItems(responseData, videoIdArray) {
     var _this = this;
@@ -669,7 +715,7 @@ var generateTemplate = {
         title = _ref2.title,
         date = _ref2.date,
         isWatched = _ref2.isWatched;
-    return "<li class=\"video-item\" data-video-id=\"".concat(id, "\">\n    <img\n      src=\"").concat(thumbnail, "\"\n      alt=\"video-item-thumbnail\"\n      class=\"video-item__thumbnail\"\n    />\n    <h4 class=\"video-item__title\">").concat(title, "</h4>\n    <p class=\"video-item__channel-name\">").concat(channel, "</p>\n    <p class=\"video-item__published-date\">").concat(date, "</p>\n    <div class=\"video-button__wrapper\">\n      <button class=\"video-item__watched-button button ").concat(isWatched ? "selected" : "", "\">\u2705</button>\n      <button class=\"video-item__delete-button button\">\uD83D\uDDD1\uFE0F</button>\n    </div>\n  </li>");
+    return "<li class=\"video-item\" data-video-id=\"".concat(id, "\">\n    <a href=\"https://www.youtube.com/watch?v=").concat(id, "\" target=\"_blank\">\n      <img\n        src=\"").concat(thumbnail, "\"\n        alt=\"video-item-thumbnail\"\n        class=\"video-item__thumbnail\"\n      />\n      <h4 class=\"video-item__title\">").concat(title, "</h4>\n      <p class=\"video-item__channel-name\">").concat(channel, "</p>\n      <p class=\"video-item__published-date\">").concat(date, "</p>\n    </a>\n    <div class=\"video-button__wrapper\">\n      <button class=\"video-item__watched-button button ").concat(isWatched ? "selected" : "", "\">\u2705</button>\n      <button class=\"video-item__delete-button button\">\uD83D\uDDD1\uFE0F</button>\n    </div>\n  </li>");
   },
   savedVideoItems: function savedVideoItems(videoStorage, watchedVideoOnly) {
     var _this2 = this;
@@ -748,6 +794,32 @@ var totalScrollHeight = function totalScrollHeight(element) {
 var currentScrollHeight = function currentScrollHeight(element) {
   return element.clientHeight + element.scrollTop;
 };
+
+/***/ }),
+
+/***/ "./src/js/utils/handleError.js":
+/*!*************************************!*\
+  !*** ./src/js/utils/handleError.js ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+var handleError = function handleError(errorMessage) {
+  switch (errorMessage) {
+    case "Failed to fetch":
+      alert("인터넷 연결이 원활하지 않습니다. 잠시 후 다시 시도해주세요.");
+      break;
+
+    case "":
+      break;
+  }
+};
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (handleError);
 
 /***/ }),
 
@@ -1023,7 +1095,7 @@ var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBP
 ___CSS_LOADER_EXPORT___.i(_node_modules_css_loader_dist_cjs_js_app_css__WEBPACK_IMPORTED_MODULE_2__["default"]);
 ___CSS_LOADER_EXPORT___.i(_node_modules_css_loader_dist_cjs_js_modal_css__WEBPACK_IMPORTED_MODULE_3__["default"]);
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n}\n\nol,\nul {\n  list-style: none;\n}\n\nhtml,\nbody {\n  height: 100%;\n  -webkit-font-smoothing: antialiased;\n}\n\ninput,\ntextarea,\nselect {\n  font: inherit;\n}\n\nbutton {\n  height: 36px;\n  cursor: pointer;\n  font-style: normal;\n  font-weight: bold;\n  padding: 0 10px;\n  border-radius: 4px;\n  border: none;\n  background: #f5f5f5;\n  font-size: 14px;\n  letter-spacing: 1.25px;\n}\n\nh1 {\n  font-size: 34px;\n}\n\nh2 {\n  font-size: 34px;\n}\n\n@media (max-width: 1279px) {\n  #app {\n    max-width: 760px;\n  }\n\n  .search-modal {\n    max-width: 860px;\n  }\n}\n\n@media (max-width: 959px) {\n  #app {\n    max-width: 500px;\n  }\n\n  .search-modal {\n    max-width: 600px;\n  }\n}\n\n@media (max-width: 599px) {\n  #app {\n    max-width: 300px;\n  }\n\n  .search-modal {\n    max-width: 360px;\n  }\n\n  h1,\n  h2 {\n    font-size: 22px;\n  }\n\n  button {\n    height: 28px;\n    font-size: 12px;\n  }\n\n  .search-input__keyword {\n    width: 200px;\n    font-size: 10px;\n  }\n}\n", "",{"version":3,"sources":["webpack://./src/css/index.css"],"names":[],"mappings":"AAGA;EACE,SAAS;EACT,UAAU;EACV,sBAAsB;AACxB;;AAEA;;EAEE,gBAAgB;AAClB;;AAEA;;EAEE,YAAY;EACZ,mCAAmC;AACrC;;AAEA;;;EAGE,aAAa;AACf;;AAEA;EACE,YAAY;EACZ,eAAe;EACf,kBAAkB;EAClB,iBAAiB;EACjB,eAAe;EACf,kBAAkB;EAClB,YAAY;EACZ,mBAAmB;EACnB,eAAe;EACf,sBAAsB;AACxB;;AAEA;EACE,eAAe;AACjB;;AAEA;EACE,eAAe;AACjB;;AAEA;EACE;IACE,gBAAgB;EAClB;;EAEA;IACE,gBAAgB;EAClB;AACF;;AAEA;EACE;IACE,gBAAgB;EAClB;;EAEA;IACE,gBAAgB;EAClB;AACF;;AAEA;EACE;IACE,gBAAgB;EAClB;;EAEA;IACE,gBAAgB;EAClB;;EAEA;;IAEE,eAAe;EACjB;;EAEA;IACE,YAAY;IACZ,eAAe;EACjB;;EAEA;IACE,YAAY;IACZ,eAAe;EACjB;AACF","sourcesContent":["@import \"./app.css\";\n@import \"./modal.css\";\n\n* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n}\n\nol,\nul {\n  list-style: none;\n}\n\nhtml,\nbody {\n  height: 100%;\n  -webkit-font-smoothing: antialiased;\n}\n\ninput,\ntextarea,\nselect {\n  font: inherit;\n}\n\nbutton {\n  height: 36px;\n  cursor: pointer;\n  font-style: normal;\n  font-weight: bold;\n  padding: 0 10px;\n  border-radius: 4px;\n  border: none;\n  background: #f5f5f5;\n  font-size: 14px;\n  letter-spacing: 1.25px;\n}\n\nh1 {\n  font-size: 34px;\n}\n\nh2 {\n  font-size: 34px;\n}\n\n@media (max-width: 1279px) {\n  #app {\n    max-width: 760px;\n  }\n\n  .search-modal {\n    max-width: 860px;\n  }\n}\n\n@media (max-width: 959px) {\n  #app {\n    max-width: 500px;\n  }\n\n  .search-modal {\n    max-width: 600px;\n  }\n}\n\n@media (max-width: 599px) {\n  #app {\n    max-width: 300px;\n  }\n\n  .search-modal {\n    max-width: 360px;\n  }\n\n  h1,\n  h2 {\n    font-size: 22px;\n  }\n\n  button {\n    height: 28px;\n    font-size: 12px;\n  }\n\n  .search-input__keyword {\n    width: 200px;\n    font-size: 10px;\n  }\n}\n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n}\n\nol,\nul {\n  list-style: none;\n}\n\nhtml,\nbody {\n  height: 100%;\n  -webkit-font-smoothing: antialiased;\n}\n\ninput,\ntextarea,\nselect {\n  font: inherit;\n}\n\nbutton {\n  height: 36px;\n  cursor: pointer;\n  font-style: normal;\n  font-weight: bold;\n  padding: 0 10px;\n  border-radius: 4px;\n  border: none;\n  background: #f5f5f5;\n  font-size: 14px;\n  letter-spacing: 1.25px;\n}\n\nh1 {\n  font-size: 34px;\n}\n\nh2 {\n  font-size: 34px;\n}\n\na {\n  text-decoration: none;\n  color: #000000;\n  font: inherit;\n}\n\n@media (max-width: 1279px) {\n  #app {\n    max-width: 760px;\n  }\n\n  .search-modal {\n    max-width: 860px;\n  }\n}\n\n@media (max-width: 959px) {\n  #app {\n    max-width: 500px;\n  }\n\n  .search-modal {\n    max-width: 600px;\n  }\n}\n\n@media (max-width: 599px) {\n  #app {\n    max-width: 300px;\n  }\n\n  .search-modal {\n    max-width: 360px;\n  }\n\n  h1,\n  h2 {\n    font-size: 22px;\n  }\n\n  button {\n    height: 28px;\n    font-size: 12px;\n  }\n\n  .search-input__keyword {\n    width: 200px;\n    font-size: 10px;\n  }\n}\n", "",{"version":3,"sources":["webpack://./src/css/index.css"],"names":[],"mappings":"AAGA;EACE,SAAS;EACT,UAAU;EACV,sBAAsB;AACxB;;AAEA;;EAEE,gBAAgB;AAClB;;AAEA;;EAEE,YAAY;EACZ,mCAAmC;AACrC;;AAEA;;;EAGE,aAAa;AACf;;AAEA;EACE,YAAY;EACZ,eAAe;EACf,kBAAkB;EAClB,iBAAiB;EACjB,eAAe;EACf,kBAAkB;EAClB,YAAY;EACZ,mBAAmB;EACnB,eAAe;EACf,sBAAsB;AACxB;;AAEA;EACE,eAAe;AACjB;;AAEA;EACE,eAAe;AACjB;;AAEA;EACE,qBAAqB;EACrB,cAAc;EACd,aAAa;AACf;;AAEA;EACE;IACE,gBAAgB;EAClB;;EAEA;IACE,gBAAgB;EAClB;AACF;;AAEA;EACE;IACE,gBAAgB;EAClB;;EAEA;IACE,gBAAgB;EAClB;AACF;;AAEA;EACE;IACE,gBAAgB;EAClB;;EAEA;IACE,gBAAgB;EAClB;;EAEA;;IAEE,eAAe;EACjB;;EAEA;IACE,YAAY;IACZ,eAAe;EACjB;;EAEA;IACE,YAAY;IACZ,eAAe;EACjB;AACF","sourcesContent":["@import \"./app.css\";\n@import \"./modal.css\";\n\n* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n}\n\nol,\nul {\n  list-style: none;\n}\n\nhtml,\nbody {\n  height: 100%;\n  -webkit-font-smoothing: antialiased;\n}\n\ninput,\ntextarea,\nselect {\n  font: inherit;\n}\n\nbutton {\n  height: 36px;\n  cursor: pointer;\n  font-style: normal;\n  font-weight: bold;\n  padding: 0 10px;\n  border-radius: 4px;\n  border: none;\n  background: #f5f5f5;\n  font-size: 14px;\n  letter-spacing: 1.25px;\n}\n\nh1 {\n  font-size: 34px;\n}\n\nh2 {\n  font-size: 34px;\n}\n\na {\n  text-decoration: none;\n  color: #000000;\n  font: inherit;\n}\n\n@media (max-width: 1279px) {\n  #app {\n    max-width: 760px;\n  }\n\n  .search-modal {\n    max-width: 860px;\n  }\n}\n\n@media (max-width: 959px) {\n  #app {\n    max-width: 500px;\n  }\n\n  .search-modal {\n    max-width: 600px;\n  }\n}\n\n@media (max-width: 599px) {\n  #app {\n    max-width: 300px;\n  }\n\n  .search-modal {\n    max-width: 360px;\n  }\n\n  h1,\n  h2 {\n    font-size: 22px;\n  }\n\n  button {\n    height: 28px;\n    font-size: 12px;\n  }\n\n  .search-input__keyword {\n    width: 200px;\n    font-size: 10px;\n  }\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
